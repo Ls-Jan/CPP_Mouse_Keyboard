@@ -2,7 +2,7 @@
 @echo off
 
 timeout /t 3 >nul
-MK /K AVC
+Mouse_Keyboard /K ABCDE
 
 @echo on
 
