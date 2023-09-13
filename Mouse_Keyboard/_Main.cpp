@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
 	printf_s("/W：鼠标滚轮滚动，[msg]只能为整数，正数向下滚动，负数向上滚动\n");
 	printf_s("\n");
 	printf_s("使用示例：\n");
-	printf_s("%-30s：%s /M 500,500\n", "·移动鼠标到(1000,500)位置", processName);
+	printf_s("%-30s：%s /M 1000,500\n", "·移动鼠标到(1000,500)位置", processName);
 	printf_s("%-30s：%s /M\n", "·获取鼠标位置", processName);
 	printf_s("%-30s：%s /K ABCDE\n", "·键入数据“ABCDE”", processName);
 	printf_s("%-30s：%s /C L\n", "·左键单击", processName);
