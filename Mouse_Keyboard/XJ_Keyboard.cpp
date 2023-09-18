@@ -2,7 +2,7 @@
 
 VOID XJ_Keyboard::Opt_SendKey(WORD key, BOOL vk) {//发送按键(如果按键是形如VK_RETURN的虚拟键时vk需设置为真
 	INPUT input[2];
-	memset(input, 0, sizeof(input));
+	memset(input, 0, sizeof(INPUT));
 	input[0].type = INPUT_KEYBOARD;
 	if (vk) {
 		input[0].ki.wVk = key;
@@ -36,6 +36,24 @@ VOID XJ_Keyboard::Opt_SendStr(LPCSTR str) {//发送字符串
 	LPWSTR wstr = this->ConvertToWStr(str);
 	this->Opt_SendWStr(wstr);
 	free(wstr);
+}
+
+VOID XJ_Keyboard::Opt_PressKey(CHAR key){
+	INPUT input;
+	memset(&input, 0, sizeof(INPUT));
+	input.type = INPUT_KEYBOARD;
+	input.ki.wVk = key;
+	SendInput(1, &input, sizeof(INPUT));
+	return VOID();
+}
+
+VOID XJ_Keyboard::Opt_ReleaseKey(CHAR key){
+	INPUT input;
+	memset(&input, 0, sizeof(INPUT));
+	input.type = INPUT_KEYBOARD;
+	input.ki.wVk = key;
+	input.ki.dwFlags |= KEYEVENTF_KEYUP;
+	SendInput(1, &input, sizeof(INPUT));
 }
 
 LPSTR XJ_Keyboard::ConvertToStr(LPCWSTR wstr, PWORD pLen) {//宽字符串(WSTR)转换为多字节字符串(STR)。请使用free释放返回的指针，pLen为返回字串数组的长度

@@ -1,0 +1,9 @@
+﻿  _Main.cpp
+F:\Github_Repository\C++\CPP_Mouse_Keyboard\Mouse_Keyboard\_Main.cpp(189,87): warning C4244: “参数”: 从“WORD”转换到“CHAR”，可能丢失数据
+F:\Github_Repository\C++\CPP_Mouse_Keyboard\Mouse_Keyboard\_Main.cpp(191,89): warning C4244: “参数”: 从“WORD”转换到“CHAR”，可能丢失数据
+  正在生成代码
+  1 of 334 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  已完成代码的生成
+  Mouse_Keyboard.vcxproj -> F:\Github_Repository\C++\CPP_Mouse_Keyboard\Release\Mouse_Keyboard.exe

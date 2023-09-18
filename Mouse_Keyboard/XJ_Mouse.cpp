@@ -20,7 +20,7 @@ VOID XJ_Mouse::Set_Position(INT x, INT y) {
 
 VOID XJ_Mouse::Opt_Click(ButtonType button, ClickType click) {//鼠标点击操作
 	INPUT input;
-	memset(&input, 0, sizeof(input));
+	memset(&input, 0, sizeof(INPUT));
 	input.type = INPUT_MOUSE;
 
 	if (click == ClickType::Click || click == ClickType::Press) {
@@ -44,7 +44,7 @@ VOID XJ_Mouse::Opt_Click(ButtonType button, ClickType click) {//鼠标点击操作
 
 VOID XJ_Mouse::Opt_Wheel(INT delta, BOOL horizon) {//滚轮滚动操作
 	INPUT input;
-	memset(&input, 0, sizeof(input));
+	memset(&input, 0, sizeof(INPUT));
 	input.type = INPUT_MOUSE;
 	input.mi.mouseData = -delta;
 	input.mi.dwFlags = horizon? MOUSEEVENTF_HWHEEL: MOUSEEVENTF_WHEEL;
