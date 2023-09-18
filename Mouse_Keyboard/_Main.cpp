@@ -232,7 +232,7 @@ int main(int argc, char* argv[]) {
 			processName = argv[0];
 
 		printf_s("\n");
-		printf_s("本程序用于键鼠操作：%s [/M] [/K] [/C] [/W] [/Ks] [/Kp] [/Kr] [-vk] [msg]\n", processName);
+		printf_s("本程序用于键鼠控制：%s [/M] [/K] [/C] [/W] [/Ks] [/Kp] [/Kr] [-vk] [msg]\n", processName);
 		printf_s("程序运行时只能选择以下其中一个选项\n");
 		printf_s("/M：如果没有[msg]那么将返回当前鼠标位置；如果有[msg]那么将鼠标位置设置为指定坐标([msg]格式为“xxx,yyy”)\n");
 		printf_s("/C：鼠标完成一次点击操作，[msg]只能为“L”、“M”、“R”，对应左键、中键、右键\n");
