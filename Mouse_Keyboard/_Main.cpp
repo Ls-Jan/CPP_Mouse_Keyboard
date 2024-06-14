@@ -78,44 +78,6 @@ static const std::map<std::string, int>VirtualKeys{
 	{"F12",VK_F12},
 };
 
-int maidn() {
-
-
-	Sleep(3000);
-	XJ_Keyboard keyboard;
-	//keyboard.Opt_SendKey(VK_BACK, TRUE);
-	//keyboard.Opt_SendKey(VK_CANCEL, TRUE);
-	//return 0;
-
-	//keyboard.Opt_PressKey('A');
-	keyboard.Opt_PressKey(VK_SHIFT);
-	keyboard.Opt_PressKey(VK_CONTROL);
-	keyboard.Opt_PressKey('K');
-
-
-
-	return 0;
-	//std::string str = "ABCDE<KEY>";
-	auto rst = Scan("ABCDE<ENTEr>");
-	for (auto word = rst.begin(); word != rst.end(); ++word) {
-		if (word->length() > 1) {
-			std::string word_Cap = CapitalTranslate(*word, std::toupper);
-			auto vk = VirtualKeys.find(word_Cap);
-			if (vk == VirtualKeys.end()) {
-				printf_s("【虚拟键有误：<%s>】", word->data());
-				return 1;
-			}
-			keyboard.Opt_SendKey(vk->second, TRUE);
-		}
-		else {
-			keyboard.Opt_SendKey(*word->data());
-		}
-
-	}
-	return 0;
-}
-
-
 int main(int argc, char* argv[]) {
 	setlocale(LC_ALL, "");//设置代码页，防中文乱码：https://learn.microsoft.com/zh-cn/cpp/c-runtime-library/code-pages?view=msvc-170
 	XJ_Keyboard keyboard;
@@ -243,7 +205,7 @@ int main(int argc, char* argv[]) {
 		printf_s("/Kp：按下指定按键，以弥补命令行的不足。例如[msg]为“[SHIFT]”则按下shift键\n");
 		printf_s("/Kr：松开某个按键，以弥补命令行的不足。例如[msg]为“[CTRL]”则松开ctrl键\n");
 		printf_s("-vk：打印特殊按键对应名称\n");
-		
+
 		printf_s("\n");
 		printf_s("使用示例：\n");
 		printf_s("%-30s：%s /M 1000,500\n", "·移动鼠标到(1000,500)位置", processName);
@@ -259,4 +221,145 @@ int main(int argc, char* argv[]) {
 	}
 	return 0;
 }
+
+
+
+
+
+
+//估计是当时尝试“驱动版控制键鼠”但搞了一会儿就给忘到九霄外，然后留下这坨稀烂测试代码
+//我记得下面的方式也做不到“驱动级调用”，搞一会儿就没耐心搞下去了
+//VS设置管理员调试：https://blog.csdn.net/zeqi1991/article/details/96195127
+
+int main1() {
+
+
+	Sleep(3000);
+	XJ_Keyboard keyboard;
+	//keyboard.Opt_SendKey(VK_BACK, TRUE);
+	//keyboard.Opt_SendKey(VK_CANCEL, TRUE);
+	//return 0;
+
+	//keyboard.Opt_PressKey('A');
+	keyboard.Opt_PressKey(VK_SHIFT);
+	keyboard.Opt_PressKey(VK_CONTROL);
+	keyboard.Opt_PressKey('K');
+
+
+
+	return 0;
+	//std::string str = "ABCDE<KEY>";
+	auto rst = Scan("ABCDE<ENTEr>");
+	for (auto word = rst.begin(); word != rst.end(); ++word) {
+		if (word->length() > 1) {
+			std::string word_Cap = CapitalTranslate(*word, std::toupper);
+			auto vk = VirtualKeys.find(word_Cap);
+			if (vk == VirtualKeys.end()) {
+				printf_s("【虚拟键有误：<%s>】", word->data());
+				return 1;
+			}
+			keyboard.Opt_SendKey(vk->second, TRUE);
+		}
+		else {
+			keyboard.Opt_SendKey(*word->data());
+		}
+
+	}
+	return 0;
+}
+
+#include"Interception/library/interception.h"
+#pragma comment(lib,"Interception/library/x86/interception.lib")
+#include<windows.h>
+enum ScanCode
+{
+	SCANCODE_X = 0x2D,
+	SCANCODE_Y = 0x15,
+	SCANCODE_ESC = 0x01
+};
+#include<winioctl.h>
+
+int main2() {
+	InterceptionContext context;
+	InterceptionDevice device;
+	InterceptionKeyStroke stroke;
+
+	//raise_process_priority();
+
+	context = interception_create_context();
+
+	//interception_set_filter(context, interception_is_keyboard, INTERCEPTION_FILTER_KEY_DOWN | INTERCEPTION_FILTER_KEY_UP);
+
+	
+
+	Sleep(2000);
+
+	InterceptionMouseStroke mouseStroke[3];
+	ZeroMemory(mouseStroke, sizeof(mouseStroke));
+	// 鼠标移动到屏幕中间
+	//mouseStroke[0].flags = INTERCEPTION_MOUSE_MOVE_RELATIVE;
+	//mouseStroke[0].flags = INTERCEPTION_MOUSE_MOVE_ABSOLUTE;
+	//mouseStroke[0].x = 65535 / 2; // 坐标取值范围是0-65535
+	//mouseStroke[0].y = 65535 / 2;
+	//mouseStroke[0].rolling=300;
+	// 点击鼠标右键
+	//mouseStroke[1].state = INTERCEPTION_MOUSE_RIGHT_BUTTON_DOWN;
+	//mouseStroke[2].state = INTERCEPTION_MOUSE_RIGHT_BUTTON_UP;
+	mouseStroke[0].state = INTERCEPTION_MOUSE_LEFT_BUTTON_DOWN;
+	mouseStroke[1].state = INTERCEPTION_MOUSE_LEFT_BUTTON_UP;
+	//mouseStroke[1].state = INTERCEPTION_MOUSE_WHEEL;
+	//mouseStroke[0].state = INTERCEPTION_MOUSE_WHEEL;
+
+	//mouseStroke[2].state = INTERCEPTION_MOUSE_RIGHT_BUTTON_UP;
+	interception_send(context, INTERCEPTION_MOUSE(0), (InterceptionStroke*)mouseStroke, 2);
+	//interception_send(context, INTERCEPTION_MOUSE(0), (InterceptionStroke*)mouseStroke, _countof(mouseStroke));
+
+
+	////InterceptionContext context2 = interception_create_context();
+	//InterceptionKeyStroke keyStroke[2];
+	//ZeroMemory(keyStroke, sizeof(keyStroke));
+	//
+	////keyStroke[0].code = 'K';//左
+	////keyStroke[0].code = VK_DELETE;//c
+	////keyStroke[0].code = MapVirtualKey(VK_DELETE, MAPVK_VSC_TO_VK);//F9
+	////keyStroke[0].code = MapVirtualKey('K', MAPVK_VK_TO_CHAR);//左
+	////keyStroke[0].code = MapVirtualKey('k', MAPVK_VK_TO_CHAR);//\\反斜杠
+	////keyStroke[0].code = MapVirtualKey(VK_TAB, MAPVK_VK_TO_VSC);
+	////keyStroke[0].code = MapVirtualKey('K', MAPVK_VK_TO_VSC);
+	//keyStroke[0].code = MapVirtualKey('A', MAPVK_VK_TO_VSC);
+	////keyStroke[0].code = MapVirtualKey(VK_DELETE, MAPVK_VK_TO_VSC);
+	////keyStroke[0].code = MapVirtualKey(VK_DELETE, MAPVK_VK_TO_VSC_EX);
+	////keyStroke[0].code = MapVirtualKey('K', MAPVK_VSC_TO_VK);
+	////keyStroke[0].code = MapVirtualKey('K', MAPVK_VSC_TO_VK_EX);
+	//keyStroke[0].state = INTERCEPTION_KEY_DOWN;
+	//keyStroke[1].code = keyStroke[0].code;
+	//keyStroke[1].state = INTERCEPTION_KEY_UP;
+	//interception_send(context, INTERCEPTION_KEYBOARD(0), (InterceptionStroke*)keyStroke, _countof(keyStroke));
+
+
+	//device = interception_wait(context);
+	//stroke.code = SCANCODE_Y;
+	//stroke.state= INTERCEPTION_KEY_DOWN;
+	////stroke.state= INTERCEPTION_KEY_UP;
+	//interception_send(context, INTERCEPTION_KEYBOARD(0), (InterceptionStroke*)&stroke, 1);
+	//stroke.state= INTERCEPTION_KEY_UP;
+	//interception_send(context, INTERCEPTION_KEYBOARD(0), (InterceptionStroke*)&stroke, 1);
+	//interception_send(context, device, (InterceptionStroke*)&stroke, 1);
+
+
+	////while (interception_receive(context, device = interception_wait(context), (InterceptionStroke*)&stroke, 1) > 0)
+	////{
+	////	if (stroke.code == SCANCODE_X) stroke.code = SCANCODE_Y;
+
+	////	interception_send(context, device, (InterceptionStroke*)&stroke, 1);
+
+	////	if (stroke.code == SCANCODE_ESC) break;
+	////}
+
+	interception_destroy_context(context);
+
+	return 0;
+}
+
+
 

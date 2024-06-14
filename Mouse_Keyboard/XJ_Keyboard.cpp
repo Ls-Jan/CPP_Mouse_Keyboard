@@ -1,4 +1,17 @@
 #include "XJ_Keyboard.h"
+#pragma comment(lib,"Interception/library/x86/interception.lib")
+
+XJ_Keyboard::XJ_Keyboard(){
+	InterceptionKeyStroke* keyStroke=this->__keyStroke;
+	ZeroMemory(keyStroke, 2*sizeof(InterceptionKeyStroke));
+	keyStroke[0].state = INTERCEPTION_KEY_DOWN;
+	keyStroke[1].state = INTERCEPTION_KEY_UP;
+	this->__context = interception_create_context();
+}
+
+XJ_Keyboard::~XJ_Keyboard(){
+	interception_destroy_context(this->__context);
+}
 
 VOID XJ_Keyboard::Opt_SendKey(WORD key, BOOL vk) {//发送按键(如果按键是形如VK_RETURN的虚拟键时vk需设置为真
 	INPUT input[2];
@@ -38,7 +51,7 @@ VOID XJ_Keyboard::Opt_SendStr(LPCSTR str) {//发送字符串
 	free(wstr);
 }
 
-VOID XJ_Keyboard::Opt_PressKey(CHAR key){
+VOID XJ_Keyboard::Opt_PressKey(CHAR key) {
 	INPUT input;
 	memset(&input, 0, sizeof(INPUT));
 	input.type = INPUT_KEYBOARD;
@@ -47,13 +60,32 @@ VOID XJ_Keyboard::Opt_PressKey(CHAR key){
 	return VOID();
 }
 
-VOID XJ_Keyboard::Opt_ReleaseKey(CHAR key){
+VOID XJ_Keyboard::Opt_ReleaseKey(CHAR key) {
 	INPUT input;
 	memset(&input, 0, sizeof(INPUT));
 	input.type = INPUT_KEYBOARD;
 	input.ki.wVk = key;
 	input.ki.dwFlags |= KEYEVENTF_KEYUP;
 	SendInput(1, &input, sizeof(INPUT));
+}
+
+VOID XJ_Keyboard::Opt_SendKey_Device(CHAR key){
+	auto keyStroke = this->__keyStroke;
+	keyStroke[0].code = MapVirtualKey(key, MAPVK_VK_TO_VSC);
+	keyStroke[1].code = keyStroke[0].code;
+	interception_send(this->__context, INTERCEPTION_KEYBOARD(0), (InterceptionStroke*)keyStroke, 2);
+}
+
+VOID XJ_Keyboard::Opt_PressKey_Device(CHAR key){
+	auto keyStroke = this->__keyStroke;
+	keyStroke[0].code = MapVirtualKey(key, MAPVK_VK_TO_VSC);
+	interception_send(this->__context, INTERCEPTION_KEYBOARD(0), (InterceptionStroke*)keyStroke, 1);
+}
+
+VOID XJ_Keyboard::Opt_ReleaseKey_Device(CHAR key){
+	auto keyStroke = this->__keyStroke;
+	keyStroke[1].code = MapVirtualKey(key, MAPVK_VK_TO_VSC);
+	interception_send(this->__context, INTERCEPTION_KEYBOARD(0), (InterceptionStroke*)keyStroke, 1);
 }
 
 LPSTR XJ_Keyboard::ConvertToStr(LPCWSTR wstr, PWORD pLen) {//宽字符串(WSTR)转换为多字节字符串(STR)。请使用free释放返回的指针，pLen为返回字串数组的长度
@@ -81,3 +113,4 @@ LPWSTR XJ_Keyboard::ConvertToWStr(LPCSTR str, PWORD pLen) {//多字节字符串(STR)转
 		*pLen = len;
 	return wstr;
 }
+
